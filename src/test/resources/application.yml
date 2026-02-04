@@ -1,0 +1,46 @@
+spring:
+  application:
+    name: artistas-albuns-api-test
+
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password: 
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+
+  flyway:
+    enabled: false
+
+jwt:
+  secret: dGVzdC1zZWNyZXQta2V5LWZvci1qd3QtdG9rZW4tMjU2LWJpdHMtbWluaW1vLWZvci10ZXN0aW5n
+  access-token-expiration: 300000
+  refresh-token-expiration: 1800000
+
+minio:
+  endpoint: http://localhost:9000
+  access-key: minioadmin
+  secret-key: minioadmin
+  bucket-name: test-album-capas
+  presigned-url-expiry: 1800
+
+cors:
+  allowed-origins: http://localhost:8080
+
+rate-limit:
+  requests-per-minute: 100
+
+external:
+  regionais-api-url: https://integrador-argus-api.geia.vip/v1/regionais
+
+logging:
+  level:
+    root: WARN
+    br.gov.mt.seplag: DEBUG
