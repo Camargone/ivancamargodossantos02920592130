@@ -8,6 +8,8 @@ spring:
     show-sql: true
 
 minio:
+  access-key: minioadmin
+  secret-key: minioadmin
   endpoint: http://localhost:9000
 
 logging:
