@@ -7,10 +7,21 @@ spring:
   jpa:
     show-sql: true
 
+# MinIO
 minio:
   access-key: minioadmin
   secret-key: minioadmin
   endpoint: http://localhost:9000
+
+# CORS
+cors:
+  allowed-origins: http://localhost:3000,http://localhost:8080
+
+# JWT
+jwt:
+  secret: bXktc3VwZXItc2VjcmV0LWtleS1mb3Itand0LXRva2Vu
+  access-token-expiration: 300000
+  refresh-token-expiration: 1800000
 
 logging:
   level:
