@@ -3,7 +3,7 @@
 
 -- Inserir usuário padrão para testes (senha: admin123 - BCrypt encoded)
 INSERT INTO usuario (username, password, enabled)
-VALUES ('admin', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt7Q5Rq', true);
+VALUES ('admin', '$2a$10$R2DQOEpCnOOzz95PSCrPzOyTPU2iVx2KSzQa1Eh6cdPIF8SwwPNPW', true);
 
 -- Inserir artistas
 INSERT INTO artista (nome, tipo) VALUES
