@@ -10,6 +10,7 @@ API REST para gerenciamento de artistas e álbuns musicais, desenvolvida como pr
 
 - **Nome:** Ivan Camargo dos Santos
 - **Vaga:** Desenvolvedor Back End Sênior
+- **Inscrição:** 16470
 
 ---
 
@@ -114,55 +115,26 @@ src/main/java/br/gov/mt/seplag/artistas/
 
 ## Como Executar
 
-O projeto suporta dois modos de execução através de **Spring Profiles**:
+O projeto suporta **dois modos de execução** através de Spring Profiles:
 
-| Profile | Uso | Descricao                                 | Arquivo Docker |
-|---------|-----|-------------------------------------------| ---------|
-| `local` | IDE (IntelliJ, Eclipse, VSCode) | Profile padrão                            | docker-compose-infra.yml |
-| `docker` | Container Docker | Ativado automaticamente no docker-compose | docker-compose.yml |
+
+| Modo | Profile | Arquivo Docker | Descricao |
+|------|---------|----------------|-----------|
+| **Modo 1** | `local` | `docker-compose-infra.yml` | API na IDE + Banco/MinIO no Docker |
+| **Modo 2** | `docker` | `docker-compose.yml` | Tudo no Docker |
 
 ### Pré-requisitos
 - Docker e Docker Compose instalados
-- Portas disponíveis:
-- **Profile local**: 8080 (API), 5435 (PostgreSQL), 9000 e 9001 (MinIO)
-- **Profile docker**: 8081 (API), 5433 (PostgreSQL), 9100 e 9101 (MinIO)
-- Java 21 (apenas para Modo local)
-- Maven 3.9+ (apenas para Modo local)
+- Portas disponiveis:
+    - **Profile local**: 8080 (API), 5435 (PostgreSQL), 9000 e 9001 (MinIO)
+    - **Profile docker**: 8081 (API), 5433 (PostgreSQL), 9100 e 9101 (MinIO)
+- Java 21 (apenas para Modo 1)
+- Maven 3.9+ (apenas para Modo 1)
 ---
+## Modo 1: API Local + Banco/MinIO no Docker
 
-### Opção 1: Executar via Docker (Recomendado)
+Este modo e ideal para **desenvolvimento e debug** na IDE.
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                          DOCKER                             │
-│  ┌─────────────┐   ┌─────────────┐   ┌─────────────┐       │
-│  │     API     │──▶│  PostgreSQL │   │    MinIO    │       │
-│  │   :8081     │   │   :5433     │   │ :9100/:9101 │       │
-│  └─────────────┘   └─────────────┘   └─────────────┘       │
-└─────────────────────────────────────────────────────────────┘
-```
-Este modo e ideal para **testes de integracao** e **deploy**.
-
-Sobe toda a stack (API + PostgreSQL + MinIO) em containers:
-
-```bash
-# Clonar o repositório
-git clone https://github.com/Camargone/ivancamargodossantos02920592130.git
-cd ivancamargodossantos02920592130
-
-# Subir todos os containers
-docker-compose up -d
-
-# Acompanhar logs
-docker-compose logs -f api
-
-# Verificar status
-docker-compose ps
-```
-
----
-
-### Opção 2: Executar na IDE (IntelliJ / Eclipse / VSCode)
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                        SEU COMPUTADOR                       │
@@ -177,56 +149,97 @@ docker-compose ps
 └─────────────────────────────────────────────────────────────┘
 ```
 
-Para desenvolvimento local, você pode rodar a aplicacao na IDE enquanto os servicos de infraestrutura (banco e storage) rodam no Docker:
+### Passo 1: Subir infraestrutura (PostgreSQL + MinIO)
 
-**Passo 1:** Subir apenas PostgreSQL e MinIO:
 ```bash
 docker-compose -f docker-compose-infra.yml up -d
 
-# Verificar se os containers estao rodando
 docker-compose -f docker-compose-infra.yml ps
 ```
 
-**Passo 2:** Executar a aplicacao na IDE:
+### Passo 2: Executar a API na IDE
 
 #### IntelliJ IDEA
-1. Abra o projeto (File > Open > selecione a pasta do projeto)
+1. Abra o projeto (File > Open > selecione a pasta)
 2. Aguarde o Maven importar as dependencias
-3. Localize a classe `ArtistasAlbunsApplication.java`
-4. Clique com botao direito > Run 'ArtistasAlbunsApplication'
+3. Localize `ArtistasAlbunsApplication.java`
+4. Clique direito > Run 'ArtistasAlbunsApplication'
 
-**Ou configure o Run Configuration:**
+**Configuracao alternativa (Run Configuration):**
 1. Run > Edit Configurations
 2. Clique em "+" > Spring Boot
 3. Main class: `br.gov.mt.seplag.artistas.ArtistasAlbunsApplication`
 4. Active profiles: `local` (opcional, ja e o padrao)
-5. Clique em Apply e Run
+5. Apply > Run
 
-#### Eclipse / STS
-1. Import > Existing Maven Projects
-2. Selecione a pasta do projeto
-3. Clique direito no projeto > Run As > Spring Boot App
-
-#### VSCode
-1. Instale a extensao "Spring Boot Extension Pack"
-2. Abra a pasta do projeto
-3. Pressione F5 ou use o painel "Spring Boot Dashboard"
-
-#### Via Maven (Terminal)
+#### Via Terminal (Maven)
 ```bash
-# Certifique-se de que postgres e minio estao rodando
-docker-compose up -d postgres minio
-
-# Execute a aplicacao com profile local
+# Linux/Mac
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=local
 
-# Ou no Windows
+# Windows
 mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=local
+```
+
+### Parar Modo 1
+
+```bash
+# Parar a API: Ctrl+C no terminal ou Stop na IDE
+
+# Parar infraestrutura
+docker-compose -f docker-compose-infra.yml down
+
+# Parar e remover volumes (apaga dados)
+docker-compose -f docker-compose-infra.yml down -v
 ```
 
 ---
 
-### Verificar se esta funcionando
+## Modo 2: Tudo no Docker
+
+Este modo e ideal para **testes de integracao** e **deploy**.
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                          DOCKER                             │
+│  ┌─────────────┐   ┌─────────────┐   ┌─────────────┐       │
+│  │     API     │──▶│  PostgreSQL │   │    MinIO    │       │
+│  │   :8081     │   │   :5433     │   │ :9100/:9101 │       │
+│  └─────────────┘   └─────────────┘   └─────────────┘       │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Subir toda a stack
+
+```bash
+git clone https://github.com/Camargone/ivancamargodossantos02920592130.git
+cd ivancamargodossantos02920592130
+
+docker-compose up -d
+
+docker-compose logs -f api
+
+docker-compose ps
+```
+
+### Rebuild da API (apos alteracoes no codigo)
+
+```bash
+docker-compose up -d --build api
+```
+
+### Parar Modo 2
+
+```bash
+docker-compose down
+
+# Parar e remover volumes (apaga dados)
+docker-compose down -v
+```
+
+---
+
+## Verificar se esta funcionando
 
 ```bash
 # Health check
@@ -239,18 +252,16 @@ curl http://localhost:8080/actuator/health/liveness
 curl http://localhost:8080/actuator/health/readiness
 ```
 
-### Parar a Aplicacao
+---
 
-```bash
-# Parar todos os containers
-docker-compose down
+## Resumo dos Comandos
 
-# Para remover volumes tambem (apaga dados do banco)
-docker-compose down -v
-
-# Parar apenas infra (se estiver rodando API na IDE)
-docker-compose stop postgres minio
-```
+| Acao | Modo 1 (Local + Docker) | Modo 2 (Tudo Docker) |
+|------|-------------------------|----------------------|
+| Subir | `docker-compose -f docker-compose-infra.yml up -d` + IDE | `docker-compose up -d` |
+| Logs | IDE Console | `docker-compose logs -f api` |
+| Parar | IDE Stop + `docker-compose -f docker-compose-infra.yml down` | `docker-compose down` |
+| Limpar | `docker-compose -f docker-compose-infra.yml down -v` | `docker-compose down -v` |
 
 ---
 
@@ -262,22 +273,28 @@ docker-compose stop postgres minio
 # Com Maven instalado localmente
 mvn test
 
-# Ou via Docker
-docker run --rm -v $(pwd):/app -w /app maven:3.9.6-eclipse-temurin-21-alpine mvn test
+# Windows
+mvnw.cmd test
 ```
 
-### Acessar Swagger UI
+## Acessando Swagger UI e MinIO
 
-Após subir a aplicação, acesse:
+### Profile local (banco + MinIO em Docker)
+
+Após subir a aplicação, acesse: (alterne as portas conforme necessário)
 - **Swagger UI:** http://localhost:8080/swagger-ui.html
 - **OpenAPI JSON:** http://localhost:8080/api-docs
-
-### Acessar MinIO Console
-
-- **URL:** http://localhost:9001
+- **MinIO Console:** http://localhost:9001
 - **Usuário:** minioadmin
 - **Senha:** minioadmin
 
+### Profile full Docker (API + banco + MinIO)
+
+- **Swagger UI:** http://localhost:8081/swagger-ui.html
+- **OpenAPI JSON:** http://localhost:8081/api-docs
+- **MinIO Console:** http://localhost:9101
+- **Usuário:** minioadmin
+- **Senha:** minioadmin
 ---
 
 ## Endpoints da API
@@ -289,7 +306,11 @@ Após subir a aplicação, acesse:
 | POST | `/api/v1/auth/login` | Realizar login |
 | POST | `/api/v1/auth/refresh` | Renovar token |
 
-**Login:**
+**Login (CMD):**
+```cmd
+curl.exe -X POST http://localhost:8080/api/v1/auth/login -H "Content-Type: application/json" -d "{\"username\":\"admin\",\"password\":\"admin123\"}"
+```
+**Login (Linux/Mac):**
 ```bash
 curl -X POST http://localhost:8080/api/v1/auth/login \
   -H "Content-Type: application/json" \
@@ -298,33 +319,36 @@ curl -X POST http://localhost:8080/api/v1/auth/login \
 
 ### Artistas
 
-| Método | Endpoint | Descrição |
+
+
+| Metodo | Endpoint | Descricao |
 |--------|----------|-----------|
 | GET | `/api/v1/artistas` | Listar artistas (paginado) |
 | GET | `/api/v1/artistas/{id}` | Buscar por ID |
 | POST | `/api/v1/artistas` | Criar artista |
 | PUT | `/api/v1/artistas/{id}` | Atualizar artista |
 
-**Parâmetros de consulta:**
-- `page` - Número da página (default: 0)
-- `size` - Tamanho da página (default: 10)
-- `sort` - Ordenação: `asc` ou `desc` (default: asc)
+**Parametros de consulta:**
+- `page` - Numero da pagina (default: 0)
+- `size` - Tamanho da pagina (default: 10)
+- `sort` - Ordenacao: `asc` ou `desc` (default: asc)
 - `nome` - Filtrar por nome
 - `tipo` - Filtrar por tipo: `CANTOR` ou `BANDA`
 
 ### Álbuns
 
-| Método | Endpoint | Descrição |
+
+| Metodo | Endpoint | Descricao |
 |--------|----------|-----------|
-| GET | `/api/v1/albuns` | Listar álbuns (paginado) |
+| GET | `/api/v1/albuns` | Listar albuns (paginado) |
 | GET | `/api/v1/albuns/{id}` | Buscar por ID |
-| POST | `/api/v1/albuns` | Criar álbum |
-| PUT | `/api/v1/albuns/{id}` | Atualizar álbum |
+| POST | `/api/v1/albuns` | Criar album |
+| PUT | `/api/v1/albuns/{id}` | Atualizar album |
 | POST | `/api/v1/albuns/{id}/imagens` | Upload de imagens |
 | GET | `/api/v1/albuns/{id}/imagens` | Listar imagens |
 
-**Parâmetros de consulta:**
-- `page`, `size`, `sort` - Paginação
+**Parametros de consulta:**
+- `page`, `size`, `sort` - Paginacao
 - `tipo` - Filtrar por tipo de artista: `CANTOR` ou `BANDA`
 - `artista` - Filtrar por nome do artista
 
@@ -338,84 +362,166 @@ curl -X POST http://localhost:8080/api/v1/auth/login \
 
 ---
 
-## Exemplos de Uso (Postman)
+## Exemplos de Uso
+
+### Via Postman (Recomendado)
+
+Uma colecao Postman esta disponivel na pasta `/postman/Artistas-Albuns-API.postman_collection.json`.
+Importe no Postman e todos os endpoints ja estarão configurados.
+
+#### 1. Login
+```
+POST http://localhost:8080/api/v1/auth/login
+Body (raw - JSON):
+{
+    "username": "admin",
+    "password": "admin123"
+}
+```
+Copie o `accessToken` da resposta para usar nos proximos requests.
+
+#### 2. Autenticar demais requests
+Em cada request, va na aba **Authorization**:
+- Type: **Bearer Token**
+- Token: cole o `accessToken`
+
+#### 3. Criar Artista
+```
+POST http://localhost:8080/api/v1/artistas
+Authorization: Bearer SEU_TOKEN
+Body (raw - JSON):
+{
+    "nome": "Linkin Park",
+    "tipo": "BANDA"
+}
+```
+
+#### 4. Listar Artistas (com paginacao e filtros)
+```
+GET http://localhost:8080/api/v1/artistas?page=0&size=10&sort=asc
+GET http://localhost:8080/api/v1/artistas?nome=Linkin&tipo=BANDA
+Authorization: Bearer SEU_TOKEN
+```
+
+#### 5. Criar Album
+```
+POST http://localhost:8080/api/v1/albuns
+Authorization: Bearer SEU_TOKEN
+Body (raw - JSON):
+{
+    "titulo": "Hybrid Theory",
+    "artistaIds": [5]
+}
+```
+
+#### 6. Upload de Imagem de Capa
+```
+POST http://localhost:8080/api/v1/albuns/{id}/imagens
+Authorization: Bearer SEU_TOKEN
+Body: form-data
+  Key: files   (Tipo: File - clique no dropdown e troque de Text para File)
+  Value: selecione o arquivo de imagem
+```
+
+#### 7. Listar Imagens de um Album
+```
+GET http://localhost:8080/api/v1/albuns/{id}/imagens
+Authorization: Bearer SEU_TOKEN
+```
+Retorna URLs pre-assinadas (validas por 30 minutos) para cada imagem.
+
+#### 8. Refresh Token (quando access token expirar)
+```
+POST http://localhost:8080/api/v1/auth/refresh
+Body (raw - JSON):
+{
+    "refreshToken": "SEU_REFRESH_TOKEN"
+}
+```
+
+#### 9. Sincronizar Regionais
+```
+POST http://localhost:8080/api/v1/regionais/sincronizar
+Authorization: Bearer SEU_TOKEN
+```
+
+#### 10. Listar Regionais Ativas
+```
+GET http://localhost:8080/api/v1/regionais/ativas
+Authorization: Bearer SEU_TOKEN
+```
+---
+
+### Via CMD Windows
+
+> **Nota:** No Windows, use `cmd.exe` (Prompt de Comando) para os exemplos com curl.
+> No PowerShell, use acento grave para escapar: `{`"username`":`"admin`"}`.
+> Nos exemplos abaixo, substitua `SEU_TOKEN` pelo accessToken retornado no login.
 
 ### 1. Login
 
-```http
-POST /api/v1/auth/login
-Content-Type: application/json
-
-{
-  "username": "admin",
-  "password": "admin123"
-}
+```cmd
+curl.exe -X POST http://localhost:8080/api/v1/auth/login -H "Content-Type: application/json" -d "{\"username\":\"admin\",\"password\":\"admin123\"}"
 ```
 
-### 2. Criar Artista
+### 2. Refresh Token
 
-```http
-POST /api/v1/artistas
-Authorization: Bearer {access_token}
-Content-Type: application/json
-
-{
-  "nome": "System of a Down",
-  "tipo": "BANDA"
-}
+```cmd
+curl.exe -X POST http://localhost:8080/api/v1/auth/refresh -H "Content-Type: application/json" -d "{\"refreshToken\":\"SEU_REFRESH_TOKEN\"}"
 ```
 
-### 3. Criar Álbum
+### 3. Criar Artista
 
-```http
-POST /api/v1/albuns
-Authorization: Bearer {access_token}
-Content-Type: application/json
-
-{
-  "titulo": "Toxicity",
-  "artistaIds": [5]
-}
+```cmd
+curl.exe -X POST http://localhost:8080/api/v1/artistas -H "Content-Type: application/json" -H "Authorization: Bearer SEU_TOKEN" -d "{\"nome\":\"System of a Down\",\"tipo\":\"BANDA\"}"
 ```
 
-### 4. Upload de Imagem
+### 4. Listar Artistas
 
-```http
-POST /api/v1/albuns/1/imagens
-Authorization: Bearer {access_token}
-Content-Type: multipart/form-data
-
-files: [arquivo1.jpg, arquivo2.png]
+```cmd
+curl.exe -X GET "http://localhost:8080/api/v1/artistas?page=0&size=10&sort=asc" -H "Authorization: Bearer SEU_TOKEN"
 ```
 
-### 5. Buscar Álbuns de Bandas
+### 5. Criar Album
 
-```http
-GET /api/v1/albuns?tipo=BANDA&page=0&size=10&sort=asc
-Authorization: Bearer {access_token}
+```cmd
+curl.exe -X POST http://localhost:8080/api/v1/albuns -H "Content-Type: application/json" -H "Authorization: Bearer SEU_TOKEN" -d "{\"titulo\":\"Toxicity\",\"artistaIds\":[5]}"
 ```
 
-### 6. Buscar Artistas por Nome
+### 6. Upload de Imagem (usar Postman)
 
-```http
-GET /api/v1/artistas?nome=Mike&sort=asc
-Authorization: Bearer {access_token}
+```
+POST http://localhost:8080/api/v1/albuns/{id}/imagens
+Authorization: Bearer SEU_TOKEN
+Body: form-data
+  Key: files (tipo: File)
+  Value: selecione a imagem
 ```
 
-### 7. Sincronizar Regionais
+### 7. Buscar Albuns de Bandas
 
-```http
-POST /api/v1/regionais/sincronizar
-Authorization: Bearer {access_token}
+```cmd
+curl.exe -X GET "http://localhost:8080/api/v1/albuns?tipo=BANDA&page=0&size=10&sort=asc" -H "Authorization: Bearer SEU_TOKEN"
+```
+
+### 8. Sincronizar Regionais
+
+```cmd
+curl.exe -X POST http://localhost:8080/api/v1/regionais/sincronizar -H "Authorization: Bearer SEU_TOKEN"
 ```
 
 ---
-
 ## WebSocket - Notificação de Novos Álbuns
 
-Para receber notificações em tempo real quando um novo álbum é cadastrado:
+Quando um novo album e cadastrado via POST, todos os clientes conectados ao WebSocket recebem uma notificacao em tempo real.
 
-### Conexão via STOMP
+### Pagina de Teste
+
+Acesse no navegador:
+- **Profile local:** http://localhost:8080/websocket-test.html
+- **Profile Docker:** http://localhost:8081/websocket-test.html
+
+### Conexão via STOMP (referencia para integracao)
 
 ```javascript
 const socket = new SockJS('http://localhost:8080/ws/albuns');
@@ -428,39 +534,110 @@ stompClient.connect({}, function(frame) {
     });
 });
 ```
+### Fluxo da Notificacao
+
+```
+1. Cliente conecta em ws://localhost:8080/ws/albuns (WebSocket)
+2. Cliente assina /topic/novo-album (STOMP SUBSCRIBE)
+3. Alguem cria album via POST /api/v1/albuns
+4. AlbumService envia notificacao via messagingTemplate.convertAndSend()
+5. Todos os clientes inscritos recebem o JSON do album criado
+```
+```
+┌───────────────────────────────────────────────────────────────────────┐
+│                    FLUXO COMPLETO DO SISTEMA                          │
+├───────────────────────────────────────────────────────────────────────┤
+│                                                                       │
+│  ┌─────────────┐                                                      │
+│  │  NAVEGADOR  │──── http://localhost:3000 ────┐                      │
+│  │ (Frontend)  │                               │                      │
+│  └─────────────┘                               │                      │
+│        │                                       │                      │
+│        │ Header: Origin                        │                      │
+│        ▼                                       ▼                      │
+│  ┌─────────────────────────────────────────────────────────────────┐ │
+│  │                         CORS CHECK                               │ │
+│  │     Origem permitida? (localhost:3000, localhost:8080)          │ │
+│  │     SIM ──▶ Continua    NAO ──▶ Bloqueia                        │ │
+│  └─────────────────────────────────────────────────────────────────┘ │
+│        │                                                              │
+│        ▼                                                              │
+│  ┌─────────────────────────────────────────────────────────────────┐ │
+│  │                      JWT AUTHENTICATION                          │ │
+│  │     Header: Authorization: Bearer <ACCESS_TOKEN>                 │ │
+│  │     Token valido? SIM ──▶ Continua    NAO ──▶ 401 Unauthorized  │ │
+│  └─────────────────────────────────────────────────────────────────┘ │
+│        │                                                              │
+│        ▼                                                              │
+│  ┌─────────────────────────────────────────────────────────────────┐ │
+│  │                       RATE LIMIT                                 │ │
+│  │     Menos de 10 req/min? SIM ──▶ Continua   NAO ──▶ 429 Error   │ │
+│  └─────────────────────────────────────────────────────────────────┘ │
+│        │                                                              │
+│        ▼                                                              │
+│  ┌─────────────────────────────────────────────────────────────────┐ │
+│  │                      CONTROLLER / SERVICE                        │ │
+│  │     Processa a requisicao e retorna resposta                    │ │
+│  │                                                                  │ │
+│  │     Se criar Album ──▶ WebSocket.send("/topic/novo-album")      │ │
+│  └─────────────────────────────────────────────────────────────────┘ │
+│                                    │                                  │
+│                                    ▼                                  │
+│  ┌─────────────────────────────────────────────────────────────────┐ │
+│  │                        WEBSOCKET                                 │ │
+│  │     Todos clientes conectados em /topic/novo-album recebem      │ │
+│  │     a notificacao em tempo real                                 │ │
+│  └─────────────────────────────────────────────────────────────────┘ │
+│                                                                       │
+└───────────────────────────────────────────────────────────────────────┘
+```
+
 
 ---
 
 ## Decisões Técnicas
 
+
 ### 1. Arquitetura em Camadas
-Optei por uma arquitetura em camadas para facilitar a manutenção, testabilidade e separação de responsabilidades.
+Optei por uma arquitetura em camadas para facilitar a manutencao, testabilidade e separacao de responsabilidades.
 
-### 2. Relacionamento N:N com Tabela Intermediária
-Utilizei uma tabela intermediária `artista_album` para o relacionamento muitos-para-muitos, permitindo que um álbum tenha múltiplos artistas (colaborações).
+### 2. Relacionamento N:N com Tabela Intermediaria
+Utilizei uma tabela intermediaria `artista_album` para o relacionamento muitos-para-muitos, permitindo que um album tenha multiplos artistas (colaboracoes).
 
-### 3. Flyway para Migrações 
-Flyway para versionamento do schema do banco, garantindo consistência entre ambientes.
+### 3. Flyway para Migracoes + DataInitializer
+O Flyway versiona o schema do banco e popula os dados iniciais (V1: tabelas, V2: dados).
+O `DataInitializer` (CommandLineRunner) complementa garantindo que o hash BCrypt do usuario padrao
+esteja sempre compativel com o `PasswordEncoder` do Spring Security em runtime, independentemente
+da versao ou strength configurada. Ele verifica com `matches()` antes de atualizar, evitando
+escritas desnecessarias a cada reinicializacao.
 
 ### 4. MinIO para Storage
-MinIO foi escolhido por ser compatível com S3 e permitir execução local via Docker, simulando um ambiente de produção.
+MinIO foi escolhido por ser compativel com S3 e permitir execucao local via Docker, simulando um ambiente de producao.
 
-### 5. URLs Pré-assinadas
-As imagens são acessadas via URLs pré-assinadas com expiração de 30 minutos, garantindo segurança no acesso aos arquivos.
+### 5. URLs Pre-assinadas
+As imagens sao acessadas via URLs pre-assinadas com expiracao de 30 minutos, garantindo seguranca no acesso aos arquivos.
 
-### 6. Rate Limiting por Usuário
-Implementei rate limit de 10 requisições/minuto por usuário autenticado, usando Bucket4j com armazenamento em memória.
+### 6. Rate Limiting por Usuario
+Implementei rate limit de 10 requisicoes/minuto por usuario autenticado, usando Bucket4j com armazenamento em memoria.
 
-### 7. Sincronização de Regionais
-A sincronização segue as regras especificadas:
-- Novo registro na API externa → INSERT
-- Registro ausente → Inativar (soft delete)
-- Atributo alterado → Inativar antigo e criar novo
+### 7. Sincronizacao de Regionais
+A sincronizacao segue as regras especificadas:
+- Novo registro na API externa -> INSERT
+- Registro ausente -> Inativar (soft delete)
+- Atributo alterado -> Inativar antigo e criar novo
 
 ### 8. JWT com Refresh Token
-Implementei dois tipos de token para maior segurança:
-- Access Token: curta duração (5 min)
-- Refresh Token: maior duração (30 min)
+Implementei dois tipos de token para maior seguranca:
+- Access Token: curta duracao (5 min) - usado em todas as requisicoes protegidas
+- Refresh Token: maior duracao (30 min) - usado apenas para obter um novo access token
+
+### 9. CORS - Bloqueio de Dominios Externos
+O `SecurityConfig` restringe requisicoes via CORS, permitindo apenas origens configuradas
+em `cors.allowed-origins`. Requisicoes de dominios nao autorizados sao bloqueadas pelo navegador.
+
+### 10. Spring Profiles para Ambientes
+Dois profiles (`local` e `docker`) com portas e hosts distintos permitem execucao
+simultanea sem conflito, alem de facilitar o desenvolvimento local com debug na IDE.
 
 ---
 
@@ -468,25 +645,26 @@ Implementei dois tipos de token para maior segurança:
 
 - [x] API REST versionada (v1)
 - [x] CRUD de Artistas (POST, PUT, GET)
-- [x] CRUD de Álbuns (POST, PUT, GET)
-- [x] Relacionamento N:N Artista-Álbum
+- [x] CRUD de Albuns (POST, PUT, GET)
+- [x] Relacionamento N:N Artista-Album
 - [x] Paginação na consulta de álbuns
 - [x] Consultas parametrizadas (tipo cantor/banda)
 - [x] Consultas por nome do artista com ordenação
-- [x] Upload de múltiplas imagens de capa
+- [x] Upload de multiplas imagens de capa
 - [x] Armazenamento no MinIO
-- [x] URLs pré-assinadas com expiração de 30 min
+- [x] URLs pre-assinadas com expiração de 30 min
 - [x] Autenticação JWT
-- [x] Token com expiração de 5 minutos
+- [x] Token com expiracao de 5 minutos
 - [x] Refresh token
-- [x] CORS configurável
-- [x] Rate limiting (10 req/min por usuário)
+- [x] CORS configuravel
+- [x] Rate limiting (10 req/min por usuario)
 - [x] Flyway Migrations
+- [x] DataInitializer para validação de senha em runtime
 - [x] Swagger/OpenAPI
 - [x] Health Checks (Liveness/Readiness)
 - [x] WebSocket para notificação de novos álbuns
-- [x] Sincronização de regionais com API externa
-- [x] Testes unitários
+- [x] Sincronizacao de regionais com API externa
+- [x] Testes unitarios
 - [x] Docker e Docker Compose
 - [x] README com documentação completa
 
