@@ -2,8 +2,9 @@
 -- Carga inicial de dados conforme especificado no edital
 
 -- Inserir usuário padrão para testes (senha: admin123 - BCrypt encoded)
+-- Hash gerado com BCryptPasswordEncoder: new BCryptPasswordEncoder().encode("admin123")
 INSERT INTO usuario (username, password, enabled)
-VALUES ('admin', '$2a$10$R2DQOEpCnOOzz95PSCrPzOyTPU2iVx2KSzQa1Eh6cdPIF8SwwPNPW', true);
+VALUES ('admin', '$2a$10$8KxKBEWBJPBGgQLgm3GkHOiZBXjVNa0MQ5HOmCSmu/BK4FFvKTcLG', true);
 
 -- Inserir artistas
 INSERT INTO artista (nome, tipo) VALUES
