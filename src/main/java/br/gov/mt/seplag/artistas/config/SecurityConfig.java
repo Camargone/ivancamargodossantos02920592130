@@ -51,7 +51,9 @@ public class SecurityConfig {
                                 "/api-docs/**",
                                 "/v3/api-docs/**",
                                 "/actuator/**",
-                                "/ws/**"
+                                "/ws/**",
+                                "/websocket-test.html",
+                                "/webjars/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
