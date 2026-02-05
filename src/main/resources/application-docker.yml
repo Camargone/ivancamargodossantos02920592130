@@ -1,12 +1,33 @@
+# ============================================
+# Profile: DOCKER (Container)
+# ============================================
+# Este profile é usado quando a aplicação roda
+# dentro do docker-compose junto com os outros
+# serviços (postgres, minio)
+# ============================================
+
 spring:
   datasource:
-    url: jdbc:postgresql://postgres:5432/artistas_db
-    username: postgres
-    password: postgres
+    url: jdbc:postgresql://${DB_HOST:postgres}:${DB_PORT:5432}/${DB_NAME:artistas_db}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
 
+# MinIO Configuration - usa hostname do container
 minio:
-  endpoint: http://minio:9000
+  endpoint: ${MINIO_ENDPOINT:http://minio:9000}
+  access-key: ${MINIO_ACCESS_KEY:minioadmin}
+  secret-key: ${MINIO_SECRET_KEY:minioadmin}
+  bucket-name: ${MINIO_BUCKET:album-capas}
+  presigned-url-expiry: 1800
 
+# CORS
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:8080}
+
+# Logging
 logging:
   level:
     root: INFO
+    br.gov.mt.seplag: INFO
+    org.springframework.security: WARN

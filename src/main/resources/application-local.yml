@@ -1,31 +1,44 @@
+# ============================================
+# Profile: LOCAL (IntelliJ / IDE)
+# ============================================
+# Para rodar na IDE, certifique-se de que:
+# 1. PostgreSQL está rodando em localhost:5432
+# 2. MinIO está rodando em localhost:9000
+#
+# Opção 1: Subir apenas os serviços de infra via docker-compose:
+#   docker-compose up -d postgres minio
+#
+# Opção 2: Instalar PostgreSQL e MinIO localmente
+# ============================================
+
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/artistas_db
+    url: jdbc:postgresql://localhost:5435/artistas_db
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
-
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
 
-# MinIO
+# MinIO - configuracao localhost
 minio:
   access-key: minioadmin
   secret-key: minioadmin
   endpoint: http://localhost:9000
+  bucket-name: album-capas
+  presigned-url-expiry: 1800
 
-# CORS
+# CORS - permite localhost para desenvolvimento
 cors:
-  allowed-origins: http://localhost:3000,http://localhost:8080
+  allowed-origins: http://localhost:3000,http://localhost:8080,http://127.0.0.1:3000,http://127.0.0.1:8080
 
-# JWT
-jwt:
-  secret: bXktc3VwZXItc2VjcmV0LWtleS1mb3Itand0LXRva2Vu
-  access-token-expiration: 300000
-  refresh-token-expiration: 1800000
-
+# Logging mais verboso para desenvolvimento
 logging:
   level:
-    root: DEBUG
+    root: INFO
+    br.gov.mt.seplag: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE

@@ -8,9 +8,8 @@ API REST para gerenciamento de artistas e álbuns musicais, desenvolvida como pr
 
 ## Dados do Candidato
 
-- **Nome:** [Seu Nome Completo]
+- **Nome:** Ivan Camargo dos Santos
 - **Vaga:** Desenvolvedor Back End Sênior
-- **Inscrição:** [Número da Inscrição]
 
 ---
 
@@ -117,43 +116,75 @@ src/main/java/br/gov/mt/seplag/artistas/
 
 O projeto suporta dois modos de execução através de **Spring Profiles**:
 
-| Profile | Uso | Comando |
-|---------|-----|---------|
-| `local` | IDE (IntelliJ, Eclipse, VSCode) | Profile padrão |
-| `docker` | Container Docker | Ativado automaticamente no docker-compose |
+| Profile | Uso | Descricao                                 | Arquivo Docker |
+|---------|-----|-------------------------------------------| ---------|
+| `local` | IDE (IntelliJ, Eclipse, VSCode) | Profile padrão                            | docker-compose-infra.yml |
+| `docker` | Container Docker | Ativado automaticamente no docker-compose | docker-compose.yml |
 
 ### Pré-requisitos
 - Docker e Docker Compose instalados
-- Porta 8080, 8081 (API), 5432, 5433 (PostgreSQL), 9000, 9001, 9100 e 9101 (MinIO) disponíveis
-- Java 21 (apenas para execução local na IDE)
-- A porta interna da aplicação permanece 8080 em todos os ambientes. Em modo FULL DOCKER, a aplicação é exposta na porta 8081 do host para evitar conflito com execução local.
+- Portas disponíveis:
+- **Profile local**: 8080 (API), 5435 (PostgreSQL), 9000 e 9001 (MinIO)
+- **Profile docker**: 8081 (API), 5433 (PostgreSQL), 9100 e 9101 (MinIO)
+- Java 21 (apenas para Modo local)
+- Maven 3.9+ (apenas para Modo local)
 ---
 
 ### Opção 1: Executar via Docker (Recomendado)
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                          DOCKER                             │
+│  ┌─────────────┐   ┌─────────────┐   ┌─────────────┐       │
+│  │     API     │──▶│  PostgreSQL │   │    MinIO    │       │
+│  │   :8081     │   │   :5433     │   │ :9100/:9101 │       │
+│  └─────────────┘   └─────────────┘   └─────────────┘       │
+└─────────────────────────────────────────────────────────────┘
+```
+Este modo e ideal para **testes de integracao** e **deploy**.
 
 Sobe toda a stack (API + PostgreSQL + MinIO) em containers:
 
 ```bash
 # Clonar o repositório
-git clone https://github.com/[seu-usuario]/artistas-albuns-api.git
-cd artistas-albuns-api
+git clone https://github.com/Camargone/ivancamargodossantos02920592130.git
+cd ivancamargodossantos02920592130
 
 # Subir todos os containers
 docker-compose up -d
 
 # Acompanhar logs
 docker-compose logs -f api
+
+# Verificar status
+docker-compose ps
 ```
 
 ---
 
 ### Opção 2: Executar na IDE (IntelliJ / Eclipse / VSCode)
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        SEU COMPUTADOR                       │
+│  ┌─────────────────┐     ┌─────────────────────────────┐   │
+│  │                 │     │         DOCKER              │   │
+│  │   IntelliJ /    │     │  ┌─────────┐  ┌─────────┐  │   │
+│  │   Eclipse /     │────▶│  │Postgres │  │  MinIO  │  │   │
+│  │   VSCode        │     │  │ :5435   │  │ :9000   │  │   │
+│  │                 │     │  └─────────┘  └─────────┘  │   │
+│  │  (API :8080)    │     │                            │   │
+│  └─────────────────┘     └─────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────┘
+```
 
 Para desenvolvimento local, você pode rodar a aplicacao na IDE enquanto os servicos de infraestrutura (banco e storage) rodam no Docker:
 
 **Passo 1:** Subir apenas PostgreSQL e MinIO:
 ```bash
-docker compose -f docker-compose.dev.yml up -d
+docker-compose -f docker-compose-infra.yml up -d
+
+# Verificar se os containers estao rodando
+docker-compose -f docker-compose-infra.yml ps
 ```
 
 **Passo 2:** Executar a aplicacao na IDE:
@@ -408,8 +439,8 @@ Optei por uma arquitetura em camadas para facilitar a manutenção, testabilidad
 ### 2. Relacionamento N:N com Tabela Intermediária
 Utilizei uma tabela intermediária `artista_album` para o relacionamento muitos-para-muitos, permitindo que um álbum tenha múltiplos artistas (colaborações).
 
-### 3. Flyway para Migrações
-Escolhi Flyway para versionamento do schema do banco, garantindo consistência entre ambientes.
+### 3. Flyway para Migrações 
+Flyway para versionamento do schema do banco, garantindo consistência entre ambientes.
 
 ### 4. MinIO para Storage
 MinIO foi escolhido por ser compatível com S3 e permitir execução local via Docker, simulando um ambiente de produção.
@@ -458,19 +489,6 @@ Implementei dois tipos de token para maior segurança:
 - [x] Testes unitários
 - [x] Docker e Docker Compose
 - [x] README com documentação completa
-
----
-
-## Melhorias Futuras
-
-Sugestões para evolução do projeto:
-
-1. **Cache distribuído** - Implementar Redis para cache e rate limiting distribuído
-2. **Testcontainers** - Testes de integração com containers
-3. **Monitoramento** - Integração com Prometheus e Grafana
-4. **CI/CD** - Pipeline com GitHub Actions
-5. **Auditoria** - Logs de auditoria para operações críticas
-6. **Soft Delete** - Implementar exclusão lógica para artistas e álbuns
 
 ---
 

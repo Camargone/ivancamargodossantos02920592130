@@ -29,20 +29,9 @@ spring:
 
 # JWT
 jwt:
-  secret: ${JWT_SECRET}
+  secret: ${JWT_SECRET:minha-chave-secreta-muito-segura-para-jwt-token-256-bits-minimo}
   access-token-expiration: 300000      # 5 minutos
   refresh-token-expiration: 1800000    # 30 minutos
-
-# MinIO
-minio:
-  access-key: ${MINIO_ACCESS_KEY}
-  secret-key: ${MINIO_SECRET_KEY}
-  bucket-name: ${MINIO_BUCKET:album-capas}
-  presigned-url-expiry: 1800            # 30 minutos
-
-# CORS
-cors:
-  allowed-origins: ${CORS_ALLOWED_ORIGINS}
 
 # Rate limit
 rate-limit:
@@ -73,6 +62,7 @@ management:
 logging:
   level:
     root: INFO
+    br.gov.mt.seplag: DEBUG
     org.springframework.security: INFO
 
 # OpenAPI
